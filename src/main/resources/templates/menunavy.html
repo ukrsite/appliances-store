@@ -24,8 +24,17 @@
                         <a class="nav-link" th:href="@{/orders}" th:text="#{order.menu.name}"></a>
                     </li>
                 </ul>
-                <!-- Right-aligned Language Switcher -->
+                <!-- Right-aligned Language Switcher and Logout -->
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/logout}" th:text="#{logout.menu.name}"></a>
+                        <!-- Authentication Links -->
+<!--                    <li th:if="${#authorization.expression('isAnonymous()')}">-->
+<!--                        <a class="nav-link" th:href="@{/login}">Login</a>-->
+<!--                    </li>-->
+<!--                    <li th:if="${#authorization.expression('isAuthenticated()')}">-->
+<!--                        <a class="nav-link" th:href="@{/logout}" onclick="return confirm('Are you sure you want to logout?');">Logout</a>-->
+<!--                    </li>-->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
