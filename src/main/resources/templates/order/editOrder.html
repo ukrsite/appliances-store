@@ -36,10 +36,16 @@
         </tbody>
     </table>
     <div>
-        <a th:href="@{choice-appliance}">Add
-            <i class="fa fa-plus-square-o"></i>
+        <a th:href="@{choice-appliance(ordersId=${order.id})}" class="btn btn-primary">
+            Add <i class="fa fa-plus-square-o"></i>
         </a>
     </div>
+
+<!--    <div>-->
+<!--        <a th:href="@{choice-appliance}">Add-->
+<!--            <i class="fa fa-plus-square-o"></i>-->
+<!--        </a>-->
+<!--    </div>-->
 </div>
 
 

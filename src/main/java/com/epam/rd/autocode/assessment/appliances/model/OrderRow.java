@@ -14,9 +14,17 @@ public class OrderRow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Orders order;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appliance_id", nullable = false)
     private Appliance appliance;
 
-    private Long number;
+    @Column(nullable = false)
+    private int quantity;
+
+    @Column(nullable = false)
     private BigDecimal amount;
 }
