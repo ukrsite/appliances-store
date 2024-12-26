@@ -25,6 +25,13 @@ public class GlobalExceptionHandler {
         return "error/403"; // View: 403.html
     }
 
+    // Handle specific exceptions
+    @ExceptionHandler(InternalError.class)
+    public String handleInternalError(InternalError ex, Model model) {
+        model.addAttribute("error", "Internal Error: " + ex.getMessage());
+        return "error/500"; // View: 403.html
+    }
+
 //    // Handle specific exceptions
 //    @ExceptionHandler(ResourceNotFoundException.class)
 //    public String handleResourceNotFoundException(ResourceNotFoundException ex, Model model) {

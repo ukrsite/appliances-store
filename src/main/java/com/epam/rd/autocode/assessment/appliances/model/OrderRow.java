@@ -1,7 +1,10 @@
 package com.epam.rd.autocode.assessment.appliances.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
@@ -15,16 +18,18 @@ public class OrderRow {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id")
+    @ToString.Exclude // Prevent recursive loop
     private Orders order;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appliance_id", nullable = false)
+    @JoinColumn(name = "appliance_id")
     private Appliance appliance;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private int quantity;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private BigDecimal amount;
 }

@@ -15,7 +15,8 @@
 <div th:insert="~{menunavy::navy}"></div>
 
 <main class="container mt-4">
-    <h1 class="text-center mb-4" th:text="#{orders.btn.new}">New Order</h1>
+    <!-- Align "Add New Order" text to the left -->
+    <h1 class="text-start mb-4" th:text="#{orders.btn.new}">Add New Order</h1>
 
     <!-- Order Form -->
     <form th:action="@{add-order}" th:object="${order}" method="post" class="needs-validation" novalidate>
@@ -45,7 +46,7 @@
         </div>
 
         <!-- Form Buttons -->
-        <div class="d-flex justify-content-end gap-2">
+        <div class="d-flex justify-content-start gap-2">
             <button type="submit" class="btn btn-primary">Create</button>
             <input type="reset" class="btn btn-secondary" value="Reset">
         </div>

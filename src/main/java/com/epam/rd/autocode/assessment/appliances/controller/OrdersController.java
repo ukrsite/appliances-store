@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -60,19 +61,19 @@ public class OrdersController {
             @RequestParam("numbers") Integer quantity,
             @RequestParam("price") BigDecimal price,
             Model model) {
-        System.out.println("Appliance added to order -> " + orderId);
         try {
             orderService.addApplianceToOrder(orderId, applianceId, quantity, price);
             return "redirect:/orders/edit/" + orderId; // Redirect to order details or order list
         } catch (Exception e) {
             model.addAttribute("error", "Failed to add appliance to order: " + e.getMessage());
-            return "generalError"; // Replace with your error page template
+            return "error/500"; // Replace with your error page template
         }
     }
 
     @GetMapping("/edit/{id}")
     public String editOrderForm(@PathVariable Long id, Model model) {
-        Orders order = orderService.findById(id);
+        Orders order = orderService.findByIdWithRows(id)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
         model.addAttribute("order", order);
         model.addAttribute("clients", orderService.findAllClients());
         model.addAttribute("employees", orderService.findAllEmployees());
@@ -86,9 +87,32 @@ public class OrdersController {
         return "redirect:/orders";
     }
 
-    @GetMapping("/delete/{id}")
+    @GetMapping("/{id}/delete")
     public String deleteOrder(@PathVariable Long id) {
         orderService.deleteById(id);
         return "redirect:/orders";
     }
+
+    @GetMapping("/{id}/approved")
+    public String approveOrder(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        boolean success = orderService.setApprovalStatus(id, true);
+        if (success) {
+            redirectAttributes.addFlashAttribute("message", "Order approved successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Failed to approve order.");
+        }
+        return "redirect:/orders";
+    }
+
+    @GetMapping("/{id}/unapproved")
+    public String unapproveOrder(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        boolean success = orderService.setApprovalStatus(id, false);
+        if (success) {
+            redirectAttributes.addFlashAttribute("message", "Order unapproved successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Failed to unapprove order.");
+        }
+        return "redirect:/orders";
+    }
 }
+

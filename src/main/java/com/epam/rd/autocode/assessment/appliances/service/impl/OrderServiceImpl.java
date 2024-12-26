@@ -8,10 +8,12 @@ import com.epam.rd.autocode.assessment.appliances.repository.OrdersRepository;
 import com.epam.rd.autocode.assessment.appliances.service.OrderService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -76,27 +78,36 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     public void addApplianceToOrder(Long orderId, Long applianceId, Integer quantity, BigDecimal price) {
-        // Fetch the order
         Orders order = ordersRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
-        // Fetch the appliance
         Appliance appliance = applianceRepository.findById(applianceId)
                 .orElseThrow(() -> new IllegalArgumentException("Appliance not found"));
 
-        // Create a new OrderRow
+        // Create and add a new OrderRow
         OrderRow orderRow = new OrderRow();
         orderRow.setOrder(order);
         orderRow.setAppliance(appliance);
         orderRow.setQuantity(quantity);
-        orderRow.setAmount(price);
+        orderRow.setAmount(price.multiply(BigDecimal.valueOf(quantity)));
 
-        System.out.println("orderRow = " + orderRow);
-
-        // Add the OrderRow to the order
+        // Add to the order's row set
         order.getOrderRowSet().add(orderRow);
 
-        // Save the updated order
+        // Save the order (and orderRow automatically due to cascading)
         ordersRepository.save(order);
     }
+
+    public Optional<Orders> findByIdWithRows(@Param("orderId") Long orderId){
+        return ordersRepository.findByIdWithRows(orderId);
+    }
+
+    public boolean setApprovalStatus(Long id, boolean status) {
+        return ordersRepository.findById(id).map(order -> {
+            order.setApproved(status);
+            ordersRepository.save(order);
+            return true;
+        }).orElse(false);
+    }
+
 }

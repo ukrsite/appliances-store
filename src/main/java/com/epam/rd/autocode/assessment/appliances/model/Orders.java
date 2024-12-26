@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -27,8 +28,9 @@ public class Orders {
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
+    @ToString.Exclude // Prevent recursive loop
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<OrderRow> orderRowSet = new HashSet<>();
+    private List<OrderRow> orderRowSet = new ArrayList<>();
 
     @Column(name = "approved")
     private boolean approved;
@@ -52,4 +54,12 @@ public class Orders {
         orderRow.setOrder(null);
     }
 
+    @Override
+    public String toString() {
+        return "Orders{" +
+                "id=" + id +
+                ", client=" + client +
+                ", employee=" + employee +
+                '}';
+    }
 }

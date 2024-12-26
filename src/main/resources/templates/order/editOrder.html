@@ -7,47 +7,58 @@
 
     <!-- Latest compiled JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <title>Manufacturers list</title>
+    <title>Edit Order</title>
 </head>
 <body>
 <div th:insert="~{menunavy::navy}"></div>
-<h1>Edit order</h1>
 
-<div th:object="${order}">
-    <p><span th:text="#{object.order.id}"></span> <input type="text" th:field="*{id}" disabled/></p>
-    <p><span th:text="#{object.order.client}"></span> <input type="text" th:field="*{client.name}" disabled/></p>
-    <p><span th:text="#{object.order.employee}"></span> <input type="text" th:field="*{employee.name}" disabled/></p>
-    <table class="table table-hover">
-        <thead>
-        <tr class="table-dark">
-            <th th:text="id"></th>
-            <th th:text="Appliance"></th>
-            <th th:text="Number"></th>
-            <th th:text="Price"></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="row: ${rows}">
-            <td th:text="${row.id}"/>
-            <td th:text="${row.appliance.name}"/>
-            <td th:text="${row.number}"/>
-            <td th:text="${row.amount}"/>
-        </tr>
-        </tbody>
-    </table>
-    <div>
-        <a th:href="@{choice-appliance(ordersId=${order.id})}" class="btn btn-primary">
-            Add <i class="fa fa-plus-square-o"></i>
-        </a>
+<div class="container mt-4">
+    <h1 class="mb-4 text-start">Edit Order</h1>
+
+    <div th:object="${order}">
+        <div class="mb-3">
+            <label for="orderId" class="form-label">Order ID</label>
+            <input type="text" id="orderId" th:field="*{id}" class="form-control" disabled/>
+        </div>
+        <div class="mb-3">
+            <label for="clientName" class="form-label">Client Name</label>
+            <input type="text" id="clientName" th:field="*{client.name}" class="form-control" disabled/>
+        </div>
+        <div class="mb-3">
+            <label for="employeeName" class="form-label">Employee Name</label>
+            <input type="text" id="employeeName" th:field="*{employee.name}" class="form-control" disabled/>
+        </div>
+
+        <table class="table table-hover">
+            <thead>
+            <tr class="table-dark">
+                <th>ID</th>
+                <th>Appliance</th>
+                <th>Number</th>
+                <th>Price</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${order.orderRowSet}">
+                <td th:text="${row.id}"></td>
+                <td th:text="${row.appliance.name}"></td>
+                <td th:text="${row.quantity}"></td>
+                <td th:text="${row.amount}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Align button and text to the left -->
+        <div class="d-flex justify-content-start align-items-center mt-4">
+            <a th:href="@{/orders}" class="btn btn-secondary me-3">
+                Close
+            </a>
+            <a th:href="@{choice-appliance(ordersId=${order.id})}" class="btn btn-primary">
+                Add Appliance <i class="fa fa-plus-square-o"></i>
+            </a>
+        </div>
     </div>
-
-<!--    <div>-->
-<!--        <a th:href="@{choice-appliance}">Add-->
-<!--            <i class="fa fa-plus-square-o"></i>-->
-<!--        </a>-->
-<!--    </div>-->
 </div>
-
 
 <div th:insert="~{footer::footer}"></div>
 </body>

@@ -25,46 +25,46 @@
 </header>
 
 <main class="container mt-4">
-    <h1 th:text="#{orders.header.list}">Orders List</h1>
+    <h1 class="text-start" th:text="#{orders.header.list}">Orders List</h1>
 
     <!-- Orders Table -->
-    <table class="table table-hover">
+    <table class="table table-hover text-start">
         <thead>
         <tr class="table-dark">
             <th scope="col">ID</th>
             <th scope="col">Client</th>
             <th scope="col">Employee</th>
             <th scope="col">Approved</th>
-            <th scope="col">createdAt</th>
+            <th scope="col">Amount</th>
             <th scope="col">Operations</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="order : ${orders}">
-            <td><span th:text="${order.id}" class="float-end"></span></td>
-            <td><span th:text="${order.client.name}" class="float-end"></span></td>
-            <td><span th:text="${order.employee.name}" class="float-end"></span></td>
+            <td><span th:text="${order.id}"></span></td>
+            <td><span th:text="${order.client.name}"></span></td>
+            <td><span th:text="${order.employee.name}"></span></td>
 
             <!-- Approved status -->
             <td>
                 <div th:if="${order.approved}">
                     <a th:href="@{'/orders/' + ${order.id} + '/unapproved'}">
-                            <span class="icon">
-                                <i class="fa fa-check" aria-hidden="true"></i>
-                            </span>
+                        <span class="icon">
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                        </span>
                     </a>
                 </div>
                 <div th:unless="${order.approved}">
                     <a th:href="@{'/orders/' + ${order.id} + '/approved'}">
-                            <span class="icon">
-                                <i class="fa fa-minus" aria-hidden="true"></i>
-                            </span>
+                        <span class="icon">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </span>
                     </a>
                 </div>
             </td>
 
             <!-- Order amount -->
-            <td><span th:text="${order.createdAt}" class="float-end"></span></td>
+            <td><span th:text="${order.id}"></span></td>
 
             <!-- Operations -->
             <td>
@@ -84,7 +84,7 @@
     </table>
 
     <!-- Button to create new order -->
-    <a th:href="@{/orders/add}" class="btn btn-primary">
+    <a th:href="@{/orders/add}" class="btn btn-primary text-start">
         <i class="fa fa-plus-circle" aria-hidden="true"></i>
         <span th:text="#{orders.btn.new}">New Order</span>
     </a>
