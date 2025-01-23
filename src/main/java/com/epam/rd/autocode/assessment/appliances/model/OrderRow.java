@@ -1,35 +1,48 @@
 package com.epam.rd.autocode.assessment.appliances.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import java.math.BigDecimal;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class OrderRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    @ToString.Exclude // Prevent recursive loop
-    private Orders order;
+    @ManyToOne
+    @ToString.Exclude
+    private Cart cart;
 
+    @ManyToOne
+    @ToString.Exclude
+    private Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appliance_id")
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @NotNull(message = "Appliance cannot be null")
     private Appliance appliance;
 
-    //@Column(nullable = false)
-    private int quantity;
+    @NotNull
+    @Min(value = 1, message = "Number must be at least 1")
+    private Long number;
 
-    //@Column(nullable = false)
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false, message = "Amount must be greater than 0")
     private BigDecimal amount;
 }

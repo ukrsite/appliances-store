@@ -2,81 +2,65 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <!-- Latest compiled and minified CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Latest compiled JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <title>New client</title>
+    <title th:text="#{object.appliance.new}"></title>
 </head>
 <body>
 <div th:insert="~{menunavy::navy}"></div>
-<h1 th:text="#{appliance.btn.new}"></h1>
-<form action="#" th:action="@{add-appliance}" th:object="${appliance}" method="post">
-    <p>
-    <p th:if="${#fields.hasErrors('name')}" class="text-danger">Invalid name</p>
-    <span th:text="#{object.appliance.name}">
-        </span> <input type="text" th:field="*{name}"/>
-    </p>
-
-
-    <p>
-    <p th:if="${#fields.hasErrors('category')}" class="text-danger">Invalid category</p>
-    <span th:text="#{object.appliance.category}"></span>
-
-    <select th:field="*{category}">
-        <option th:each="category : ${categories}" th:value="${category}" th:text="${category}"></option>
-    </select>
-    </p>
-    <p>
-    <p th:if="${#fields.hasErrors('model')}" class="text-danger">Invalid model</p>
-    <span th:text="#{object.appliance.model}"></span>
-    <input type="text" th:field="*{model}"/>
-    </p>
-
-    <p>
-    <p th:if="${#fields.hasErrors('manufacturer')}" class="text-danger">Invalid manufacturer</p>
-    <span th:text="#{object.appliance.manufacturer}"></span>
-
-    <select th:field="*{manufacturer}">
-        <option th:each="manufacturer : ${manufacturers}" th:value="${manufacturer.getId()}"
-                th:text="${manufacturer.getName()}"></option>
-    </select>
-    </p>
-    <p>
-    <p th:if="${#fields.hasErrors('powerType')}" class="text-danger">Invalid power type</p>
-    <span th:text="#{object.appliance.powerType}"></span>
-
-    <select th:field="*{powerType}">
-        <option th:each="powerType : ${powerTypes}" th:value="${powerType}" th:text="${powerType}"></option>
-    </select>
-    </p>
-
-    <p>
-    <p th:if="${#fields.hasErrors('characteristic')}" class="text-danger">Invalid characteristic</p>
-    <span th:text="#{object.appliance.characteristic}"></span>
-    <input type="text" th:field="*{characteristic}"/>
-    </p>
-
-    <p>
-    <p th:if="${#fields.hasErrors('description')}" class="text-danger">Invalid description</p>
-    <span th:text="#{object.appliance.description}"></span>
-    <input type="text" th:field="*{description}"/>
-    </p>
-
-    <p>
-    <p th:if="${#fields.hasErrors('power')}" class="text-danger">Invalid power</p>
-    <span th:text="#{object.appliance.power}"></span>
-    <input type="text" th:field="*{power}"/>
-    </p>
-    <p>
-    <p th:if="${#fields.hasErrors('price')}" class="text-danger">Invalid price</p>
-    <span th:text="#{object.appliance.price}"></span>
-    <input type="text" th:field="*{price}"/>
-    </p>
-
-    <p><input type="submit" value="Submit"/> <input type="reset" value="Reset"/></p>
-</form>
+<div class="container mt-4">
+    <h1 th:text="#{object.appliance.new}"></h1>
+    <form th:action="@{add-appliance}" th:object="${appliance}" method="post">
+        <div class="mb-3">
+            <label for="name" th:text="#{object.appliance.name}"/>
+            <input class="form-control" id="name" required th:field="*{name}" type="text">
+        </div>
+        <div class="mb-3">
+            <label for="category" th:text="#{object.appliance.category}"/>
+            <select class="form-select" id="category" required th:field="*{category}">
+                <option th:each="category : ${categories}" th:text="${category}" th:value="${category}"/>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="model" th:text="#{object.appliance.model}"/>
+            <input class="form-control" id="model" required th:field="*{model}" type="text">
+        </div>
+        <div class="mb-3">
+            <label for="manufacturer" th:text="#{object.appliance.manufacturer}"/>
+            <select class="form-select" id="manufacturer" required th:field="*{manufacturer}">
+                <option th:each="manufacturer : ${manufacturers}" th:text="${manufacturer.getName()}"
+                        th:value="${manufacturer.getId()}"/>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="powerType" th:text="#{object.appliance.powerType}"/>
+            <select class="form-select" id="powerType" required th:field="*{powerType}">
+                <option th:each="powerType : ${powerTypes}" th:text="${powerType}" th:value="${powerType}"/>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="characteristic" th:text="#{object.appliance.characteristic}"/>
+            <input class="form-control" id="characteristic" required th:field="*{characteristic}" type="text">
+        </div>
+        <div class="mb-3">
+            <label for="description" th:text="#{object.appliance.description}"/>
+            <input class="form-control" id="description" required th:field="*{description}" type="text">
+        </div>
+        <div class="mb-3">
+            <label for="power" th:text="#{object.appliance.power}"/>
+            <input class="form-control" id="power" required th:field="*{power}" min="1" type="number">
+        </div>
+        <div class="mb-3">
+            <label for="price" th:text="#{object.appliance.price}"/>
+            <input class="form-control" id="price" required step="0.01" min="0.01" th:field="*{price}"
+                   type="number">
+        </div>
+        <div class="mb-3">
+            <input class="btn btn-primary" th:value="#{btn.submit}" type="submit"/>
+            <a class="btn btn-secondary" th:href="@{/appliances}" th:text="#{btn.cancel}"></a>
+        </div>
+    </form>
+</div>
 <div th:insert="~{footer::footer}"></div>
 </body>
 </html>

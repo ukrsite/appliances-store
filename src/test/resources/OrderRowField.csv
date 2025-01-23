@@ -1,4 +1,4 @@
 java.lang.Long,id
-model.com.appliances.Appliance,appliance
+com.epam.rd.autocode.assessment.appliances.model.Appliance,appliance
 java.math.BigDecimal,amount
 java.lang.Long,number

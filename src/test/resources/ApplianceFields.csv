@@ -1,9 +1,9 @@
 java.lang.Long,id,1
 java.lang.String,name,1
-model.com.appliances.Category,category,1
+com.epam.rd.autocode.assessment.appliances.model.enums.Category,category,1
 java.lang.String,model,1
-model.com.appliances.Manufacturer,manufacturer,1
-model.com.appliances.PowerType,powerType,1
+com.epam.rd.autocode.assessment.appliances.model.Manufacturer,manufacturer,1
+com.epam.rd.autocode.assessment.appliances.model.enums.PowerType,powerType,1
 java.lang.String,characteristic,1
 java.lang.String,description,1
 java.lang.Integer,power,1

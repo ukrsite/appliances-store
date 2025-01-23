@@ -1,113 +1,94 @@
 package com.epam.rd.autocode.assessment.appliances.service.impl;
 
-import com.epam.rd.autocode.assessment.appliances.model.*;
-import com.epam.rd.autocode.assessment.appliances.repository.ApplianceRepository;
-import com.epam.rd.autocode.assessment.appliances.repository.ClientRepository;
-import com.epam.rd.autocode.assessment.appliances.repository.EmployeeRepository;
-import com.epam.rd.autocode.assessment.appliances.repository.OrdersRepository;
+import com.epam.rd.autocode.assessment.appliances.model.Cart;
+import com.epam.rd.autocode.assessment.appliances.model.Client;
+import com.epam.rd.autocode.assessment.appliances.model.CustomUser;
+import com.epam.rd.autocode.assessment.appliances.model.Employee;
+import com.epam.rd.autocode.assessment.appliances.model.Order;
+import com.epam.rd.autocode.assessment.appliances.model.OrderRow;
+import com.epam.rd.autocode.assessment.appliances.model.enums.Status;
+import com.epam.rd.autocode.assessment.appliances.repository.OrderRepository;
+import com.epam.rd.autocode.assessment.appliances.repository.OrderRowRepository;
+import com.epam.rd.autocode.assessment.appliances.service.CartService;
 import com.epam.rd.autocode.assessment.appliances.service.OrderService;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
+import com.epam.rd.autocode.assessment.appliances.service.UserService;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+    private final OrderRepository orderRepository;
+    private final CartService cartService;
+    private final UserService userService;
+    private final OrderRowRepository orderRowRepository;
 
-    @Autowired
-    private OrdersRepository ordersRepository;
-
-    @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private EmployeeRepository employeeRepository;
-
-    @Autowired
-    private ApplianceRepository applianceRepository;
-
-    @Override
-    public List<Orders> findAll() {
-        return ordersRepository.findAll();
+    public OrderServiceImpl(
+            OrderRepository orderRepository,
+            CartService cartService,
+            UserService userService,
+            OrderRowRepository orderRowRepository) {
+        this.orderRepository = orderRepository;
+        this.cartService = cartService;
+        this.userService = userService;
+        this.orderRowRepository = orderRowRepository;
     }
 
     @Override
-    public Orders findById(Long id) {
-        return ordersRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
-    }
+    public Page<Order> getAllOrders(Pageable pageable) {
+        CustomUser user = userService.findUserByEmail(getAuth().getName());
 
-    @Override
-    public void save(Orders order) {
-        ordersRepository.save(order);
-    }
-
-    @Override
-    public void update(Orders order) {
-        if (!ordersRepository.existsById(order.getId())) {
-            throw new RuntimeException("Order not found");
+        if (user instanceof Client client) {
+            return orderRepository.findAllByClient(client, pageable);
         }
-        ordersRepository.save(order);
+
+        return orderRepository.findAll(pageable);
     }
 
     @Override
-    public void deleteById(Long id) {
-        if (!ordersRepository.existsById(id)) {
-            throw new RuntimeException("Order not found");
-        }
-        ordersRepository.deleteById(id);
+    public Order createOrder() {
+        Cart cart = cartService.getCurrentUserCart();
+        if (cart == null) return null;
+
+        Order order = new Order();
+        List<OrderRow> orderRowList = cart.getOrderRowList();
+
+        order.setClient(cart.getClient());
+        order.setTotal(cart.getTotal());
+        orderRepository.save(order);
+
+        orderRowList.forEach(orderRow -> {
+            orderRow.setOrder(order);
+            orderRow.setCart(null);
+            orderRowRepository.save(orderRow);
+        });
+        cartService.deleteCart(cart);
+
+        order.setOrderRowList(new ArrayList<>(orderRowList));
+        return orderRepository.save(order);
     }
 
     @Override
-    public List<Client> findAllClients() {
-        return clientRepository.findAll();
+    public void updateStatusById(Long id, Status status) {
+        orderRepository.findById(id).ifPresent(order -> {
+            CustomUser user = userService.findUserByEmail(getAuth().getName());
+
+            if (user instanceof Employee employee) {
+                order.setEmployee(employee);
+            } else if (user instanceof Client client && !order.getClient().equals(client)) {
+                return;
+            }
+
+            order.setStatus(status);
+            orderRepository.save(order);
+        });
     }
 
-    @Override
-    public List<Employee> findAllEmployees() {
-        return employeeRepository.findAll();
+    private Authentication getAuth() {
+        return SecurityContextHolder.getContext().getAuthentication();
     }
-
-    @Override
-    public List<Appliance> findAllAppliances() {
-        return applianceRepository.findAll();
-    }
-
-    @Transactional
-    public void addApplianceToOrder(Long orderId, Long applianceId, Integer quantity, BigDecimal price) {
-        Orders order = ordersRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-
-        Appliance appliance = applianceRepository.findById(applianceId)
-                .orElseThrow(() -> new IllegalArgumentException("Appliance not found"));
-
-        // Create and add a new OrderRow
-        OrderRow orderRow = new OrderRow();
-        orderRow.setOrder(order);
-        orderRow.setAppliance(appliance);
-        orderRow.setQuantity(quantity);
-        orderRow.setAmount(price.multiply(BigDecimal.valueOf(quantity)));
-
-        // Add to the order's row set
-        order.getOrderRowSet().add(orderRow);
-
-        // Save the order (and orderRow automatically due to cascading)
-        ordersRepository.save(order);
-    }
-
-    public Optional<Orders> findByIdWithRows(@Param("orderId") Long orderId){
-        return ordersRepository.findByIdWithRows(orderId);
-    }
-
-    public boolean setApprovalStatus(Long id, boolean status) {
-        return ordersRepository.findById(id).map(order -> {
-            order.setApproved(status);
-            ordersRepository.save(order);
-            return true;
-        }).orElse(false);
-    }
-
 }

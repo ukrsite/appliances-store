@@ -1,18 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<meta charset="UTF-8">
 <div th:fragment="navy">
     <nav class="navbar navbar-expand-sm bg-primary navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="/" th:text="#{shop.name}"></a>
             <div class="collapse navbar-collapse">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav me-3">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/catalog}" th:text="#{catalog.menu.name}"></a>
+                    </li>
+                    <li sec:authorize="!isAnonymous()" class="nav-item">
+                        <a class="nav-link" th:href="@{/orders}" th:text="#{orders.menu.name}"></a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav me-3" sec:authorize="hasAnyRole('EMPLOYEE', 'ADMIN')">
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/clients}" th:text="#{clients.menu.name}"></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/employees}" th:text="#{employees.menu.name}"></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/manufacturers}" th:text="#{manufacturers.menu.name}"></a>
@@ -20,40 +24,88 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/appliances}" th:text="#{appliances.menu.name}"></a>
                     </li>
+                </ul>
+                <ul class="navbar-nav" sec:authorize="hasRole('ADMIN')">
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/orders}" th:text="#{order.menu.name}"></a>
+                        <a class="nav-link" th:href="@{/employees}" th:text="#{employees.menu.name}"></a>
                     </li>
                 </ul>
-                <!-- Right-aligned Language Switcher and Logout -->
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/logout}" th:text="#{logout.menu.name}"></a>
-                        <!-- Authentication Links -->
-<!--                    <li th:if="${#authorization.expression('isAnonymous()')}">-->
-<!--                        <a class="nav-link" th:href="@{/login}">Login</a>-->
-<!--                    </li>-->
-<!--                    <li th:if="${#authorization.expression('isAuthenticated()')}">-->
-<!--                        <a class="nav-link" th:href="@{/logout}" onclick="return confirm('Are you sure you want to logout?');">Logout</a>-->
-<!--                    </li>-->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-globe"></i> <span th:text="#{language.switch}">Language</span>
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li>
-                                <a class="dropdown-item" th:href="@{?lang=en}">
-                                    <i class="fa fa-flag"></i> EN
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" th:href="@{?lang=uk}">
-                                    <i class="fa fa-flag"></i> UA
-                                </a>
-                            </li>
-                        </ul>
+                    <li class="nav-item me-2">
+                        <button class="btn btn-outline-light" data-bs-target="#cartModal" data-bs-toggle="modal"
+                                th:text="#{cart.header}" type="button">
+                        </button>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAnonymous()">
+                        <a class="btn btn-outline-light" th:href="@{/login}" th:text="#{btn.login}"></a>
+                        <a class="btn btn-outline-light" th:href="@{/register}" th:text="#{btn.register}"></a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="btn btn-outline-light" th:href="@{/logout}" th:text="#{btn.logout}"></a>
                     </li>
                 </ul>
+                <div class="form ms-3">
+                    <label>
+                        <select class="form-select" name="lang" onchange="changeLanguage(this.value)">
+                            <option th:selected="${#locale.language}=='en'" value="en">English</option>
+                            <option th:selected="${#locale.language}=='ua'" value="ua">Українська</option>
+                        </select>
+                    </label>
+                </div>
+                <script>
+                    function changeLanguage(lang) {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('lang', lang);
+                        window.location.href = url.toString();
+                    }
+                </script>
+
+                <!-- Modal -->
+                <div aria-hidden="true" aria-labelledby="cartModalLabel" class="modal fade" id="cartModal"
+                     tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="cartModalLabel" th:text="#{cart.preview.header}"/>
+                                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal"
+                                        type="button"></button>
+                            </div>
+                            <div sec:authorize="hasAnyRole('EMPLOYEE', 'ADMIN')" class="text-center mt-3">
+                                <p th:text="#{cart.locked.message}"/>
+                            </div>
+                            <div class="modal-body" th:if="${cart != null}">
+                                <div th:if="${cart.orderRowList.isEmpty()}">
+                                    <p th:text="#{cart.empty}"/>
+                                </div>
+                                <div th:unless="${cart.orderRowList.isEmpty()}">
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th th:text="#{object.appliance.name}">Appliance</th>
+                                            <th th:text="#{object.appliance.price}">Price</th>
+                                            <th th:text="#{object.orderRow.number}">Quantity</th>
+                                            <th th:text="#{object.orderRow.amount}">Amount</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="orderRow : ${cart.orderRowList}">
+                                            <td th:text="${orderRow.appliance.name}"></td>
+                                            <td th:text="${orderRow.appliance.price} + '$'"></td>
+                                            <td th:text="${orderRow.number}"></td>
+                                            <td th:text="${orderRow.amount} + '$'"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-center">
+                                <a class="btn btn-primary" th:href="@{/cart}" th:text="#{cart.full.btn}"></a>
+                                <button class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{btn.cancel}"
+                                        type="button"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
