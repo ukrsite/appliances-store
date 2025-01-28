@@ -1,64 +1,80 @@
-# Appliance store test(Spring Boot)
+# Demonstration Plan and Key Points for the Final Project "Appliance Store Test"
 
-The purpose of this exercise is to check your knowledge and understanding Spring Boot technology.
+## 1. Introduction
+- Presentation of the project and its objectives.
+- Overview of the technologies used: Spring Boot, Spring Security, Spring JPA, H2 Database, Swagger, Docker, Azure, etc.
+- Core idea of the project: simulating the operation of an online appliance store.
 
-Duration: **15** hour
+## 2. Functional Capabilities
+### 2.1. User Roles
+- **Administrator**:
+  - Managing users (adding, editing, deleting).
+  - Viewing all database tables.
+  - Approving orders.
+- **Employee**:
+  - Viewing tables.
+  - Adding, editing, deleting customers, products, and manufacturers.
+  - Approving orders.
+- **Customer**:
+  - Registration and authentication.
+  - Adding items to the shopping cart.
+  - Creating, editing, and deleting orders.
+- **Guest User**:
+  - Viewing the available product catalog.
 
-## Description
+### 2.2. Core Features
+- **Authentication and Authorization** (Spring Security, In-Memory Authentication, Dao AuthenticationProvider).
+- **Database Interaction** (Spring JPA, H2 Database, JPA repositories, SQL data initialization).
+- **Internationalization (i18n)** (translations of interface and content).
+- **Input Data Validation** (Spring Validation).
+- **API for working with customers, products, orders** (REST controllers, Swagger).
+- **Error Handling** (GlobalExceptionHandlerAdvice).
 
-In this exercise, you will implement an "Appliances shop" using Spring Boot.
-Your application has to imitate work of an online shop.
+## 3. Architectural Implementation
+### 3.1. Multi-layered Architecture
+- **Repository Layer**: Database interaction via JPA.
+- **Service Layer**: Business logic.
+- **Controller Layer**: REST interfaces and web controllers.
+- **Caching** (option for cache extension to optimize queries).
 
-Employees should be able to do the following:
-1. show every table;
-2. add, correct, and delete `Employee`, `Client`, `Appliance`, `Manufacturer`;
-3. approve orders.
+### 3.2. Working with Database
+- Use of **H2 Database** to store data.
+- SQL scripts for initial database population (`manufacturer.sql`, `client.sql`, `employee.sql`, `appliance.sql`).
+- Displaying relationships between entities (OneToMany, ManyToOne).
 
-Clients and employees should be able to do the following:
-1. have navigation and provide access for permitted elements front-end;
-2. add, correct, and delete orders.
+### 3.3. Extended Functionality
+- **Shopping Cart (Cart Service/Controller)** for managing customer products.
+- **Pagination and Sorting** for viewing product and order lists.
+- **Logging** (setting up logging levels).
+- **Dockerization** (Docker, docker-compose).
 
-Users must be able to work in two languages(native and English). 
+## 4. System Demonstration
+### 4.1. Project Launch
+- Starting the project via `docker-compose`.
+- Checking the connection to the H2 Database.
+- Logging into the system with different user roles.
 
-The class diagram of the Domain model is shown in the figure below:
-![img.png](img.png)
+### 4.2. Viewing Tables
+- Viewing product, customer, and order lists.
+- Adding, editing, and deleting records.
 
-Your application must implement next layers:
-* Repository - work with necessary entities (JPA);
-* Service - contains business logic your application;
-* Controller - is front end your application. 
+### 4.3. Placing an Order
+- Adding items to the shopping cart.
+- Confirming the order.
+- Viewing order history.
 
-### Requirements:
-* Use a skeleton application;
-* Use H2 database to realisation storage;
-* Use annotations to describe DB entities. List of entities:
-  * `User`;
-  * `Client`;
-  * `Employee`;
-  * `Manufacturer`;
-  * `Appliance`;
-  * `Order`;
-  * `OrderRow`.
-* Use Spring JPA technology;
-* Use Spring Security;
-* Implement internationalization and localization in controllers;
-* Implement validation for the Domain model and controllers.
+### 4.4. API Testing
+- Using **Swagger** to test REST controllers.
+- Performing CRUD operations through Postman or Swagger UI.
 
-### Would be nice
-* to use logging;
-* to implement pagination and sorting in controllers;
-* to explore other Spring technologies;
-* to write tests for controllers and services.
+## 5. Conclusion and Future Expansion Opportunities
+- **Possible future extensions**:
+  - Adding email notifications.
+  - Integration with a payment system.
+  - Using a fully relational database (PostgreSQL, MySQL).
 
-### Recommendations
-* Use `Lombok`
-* Implement In-Memory Authentication(Spring Security).
-* You have files with initial data, but you can use other data.
-  To load initial data, use
-  `spring.sql.init.data-locations=classpath:manufacturer.sql, classpath:client.sql, classpath:employee.sql, classpath:appliance.sql`
-  in `application.properties`.
-* Files with initial data located `resources`. The list of files includes `manufacturer.sql`, `client.sql`, `employee.sql`, `appliance.sql`.
-* Additionally, you may to using files to frond-end from `resources\templates\**`, or use yourself front-end.  
-* If you do not have enough time to implement all the requirements, you can choose to implement only part of the functionality. For example, you can focus on add, delete, and update for employees and not implement them for clients.
-
-Good luck. You have only 15 hours
+- **Summary of the work completed**:
+  - Implementation of all basic functions.
+  - Ensuring security through Spring Security.
+  - Implementation of international support.
+  - Optimizing interaction through caching and logging.
