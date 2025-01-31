@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 - Presentation of the project and its objectives.
-- Overview of the technologies used: Spring Boot, Spring Security, Spring JPA, H2 Database, Swagger, Docker, Azure, etc.
+- Overview of the technologies used: Spring Boot, Spring Security, Spring JPA, H2 Database, Swagger, Docker, Kubernetes, Azure, etc.
 - Core idea of the project: simulating the operation of an online appliance store.
 
 ## 2. Functional Capabilities
@@ -47,6 +47,7 @@
 - **Pagination and Sorting** for viewing product and order lists.
 - **Logging** (setting up logging levels).
 - **Dockerization** (Docker, docker-compose).
+- **Kubernetes** (Deployment, Rolling Update, Scaling, LoadBalancer).
 
 ## 4. System Demonstration
 ### 4.1. Project Launch
