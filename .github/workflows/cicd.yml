@@ -111,9 +111,7 @@ jobs:
       - name: Update Helm Values.yaml
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval -i '.image.tag=env(VERSION)' values.yaml
-        working-directory: src/main/resources/helm
-
+          cmd: yq eval -i '.image.tag=env(VERSION)' src/main/resources/helm/values.yaml
 
       - name: Update Helm Chart Version
         uses: mikefarah/yq@master
