@@ -24,9 +24,11 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for versioning
 
-      - name: Log in to Azure Container Registry (ACR) Using System Identity
+      - name: Authenticate to Azure Container Registry (ACR) Using System Identity
         run: |
-            az acr login --name ${{ env.REGISTRY }} --identity
+          TOKEN=$(az account get-access-token --resource https://management.azure.com --query accessToken --output tsv)
+          echo $TOKEN | docker login ${{ env.REGISTRY }} -u 00000000-0000-0000-0000-000000000000 --password-stdin
+      
 
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v3
