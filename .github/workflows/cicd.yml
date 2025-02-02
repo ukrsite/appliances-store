@@ -103,26 +103,31 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Debug File Paths
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Repository structure:"
+          ls -R
+          echo "Searching for values.yaml:"
+          find . -name "values.yaml"
+
       - name: Verify Helm Files Exist
         run: |
-          if [ ! -f "helm/values.yaml" ]; then 
-            echo "Error: helm/values.yaml not found!"; 
+          if [ ! -f "./helm/values.yaml" ]; then 
+            echo "Error: ./helm/values.yaml not found!"; 
             exit 1; 
           fi
-          if [ ! -f "helm/Chart.yaml" ]; then 
-            echo "Error: helm/Chart.yaml not found!"; 
+          if [ ! -f "./helm/Chart.yaml" ]; then 
+            echo "Error: ./helm/Chart.yaml not found!"; 
             exit 1; 
           fi
 
       - name: Update Helm Values.yaml
-        uses: mikefarah/yq@master
-        with:
-          cmd: yq eval -i '.image.tag=env(VERSION)' helm/values.yaml
+        run: yq eval -i '.image.tag=env(VERSION)' ./helm/values.yaml
 
       - name: Update Helm Chart Version
-        uses: mikefarah/yq@master
-        with:
-          cmd: yq -i '.version=strenv(VERSION)' helm/Chart.yaml
+        run: yq eval -i '.version=strenv(VERSION)' ./helm/Chart.yaml
 
       - name: Validate Helm Chart Updates
         run: |
