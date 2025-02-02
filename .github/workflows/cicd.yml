@@ -112,6 +112,14 @@ jobs:
             exit 1
           fi
 
+      - name: Debug File Structure
+        run: ls -R
+
+      - name: Debug File Paths
+        run: |
+          echo "Checking file existence..."
+          find . -name "values.yaml"
+
       - name: Update Helm Values.yaml
         uses: mikefarah/yq@master
         with:
