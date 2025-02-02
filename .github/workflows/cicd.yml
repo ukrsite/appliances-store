@@ -1,18 +1,3 @@
-name: STORE-CICD
-
-on:
-  push:
-    branches:
-      - main
-
-env:
-  REGISTRY: devregistry20250126.azurecr.io  # Replace with your ACR registry name
-  IMAGE_NAME: appliances-store
-
-permissions:
-  id-token: write   # Required for OIDC authentication
-  contents: read
-
 jobs:
   ci:
     name: CI
@@ -25,7 +10,6 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for versioning
 
-
       - name: Azure Login (OIDC)
         uses: azure/login@v1
         with:
@@ -34,11 +18,13 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Login to Azure Container Registry (ACR)
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ env.REGISTRY }}
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        run: |
+          # Get ACR credentials using Azure CLI
+          ACR_USERNAME=$(az acr credential show --name ${{ env.REGISTRY }} --query "username" --output tsv)
+          ACR_PASSWORD=$(az acr credential show --name ${{ env.REGISTRY }} --query "passwords[0].value" --output tsv)
+
+          # Log in to ACR using Docker
+          echo $ACR_PASSWORD | docker login ${{ env.REGISTRY }} --username $ACR_USERNAME --password-stdin
 
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -62,6 +48,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Logout from Azure Container Registry (ACR)
+        run: |
+          docker logout ${{ env.REGISTRY }}
   cd:
     name: CD
     needs: ci
@@ -89,10 +78,17 @@ jobs:
         with:
           cmd: yq -i '.version=strenv(VERSION)' helm/Chart.yaml
 
+      - name: Validate Helm Chart Updates
+        run: |
+          echo "Updated values.yaml:"
+          cat helm/values.yaml
+          echo "Updated Chart.yaml:"
+          cat helm/Chart.yaml
+
       - name: Commit and Push Changes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add helm/values.yaml helm/Chart.yaml
-          git commit -m "CI: Update to version $VERSION" || echo "No changes to commit"
+          git diff-index --quiet HEAD || git commit -m "CI: Update to version $VERSION"
           git push
