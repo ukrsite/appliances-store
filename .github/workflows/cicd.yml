@@ -57,7 +57,6 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-
       - name: Generate Docker Metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -66,7 +65,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
-            type=raw,value=${{ github.version }}
+            type=raw,value=${{ env.$VERSION }}
 
       - name: Build & Push Docker Image
         uses: docker/build-push-action@v5
@@ -100,10 +99,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Verify values.yaml file exists
+        run: |
+          if [ -f "src/main/resources/helm/values.yaml" ]; then
+            echo "File exists."
+          else
+            echo "File does not exist."
+            exit 1
+          fi
+
       - name: Update Helm Values.yaml
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval -i '.image.tag=env(VERSION)' src/main/resources/helm/values.yaml
+          cmd: yq eval -i '.image.tag=env(VERSION)' values.yaml
+        working-directory: src/main/resources/helm
+
 
       - name: Update Helm Chart Version
         uses: mikefarah/yq@master
@@ -113,9 +123,9 @@ jobs:
       - name: Validate Helm Chart Updates
         run: |
           echo "Updated values.yaml:"
-          cat helm/values.yaml
+          cat src/main/resources/helm/values.yaml
           echo "Updated Chart.yaml:"
-          cat helm/Chart.yaml
+          cat src/main/resources/helm/Chart.yaml
 
       - name: Commit and Push Changes
         run: |
