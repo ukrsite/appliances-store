@@ -24,10 +24,18 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for versioning
 
-      - name: Azure Login (OIDC)
+      - name: Check if secrets are set
         run: |
-          ID=echo ${{ secrets.AZURE_CLIENT_ID }}
-          echo $ID
+          echo "Checking if secrets are set"
+          echo "AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}"
+
+      - name: Echo obfuscated secrets
+        run: |
+          echo "Client ID: ${AZURE_CLIENT_ID:0:4}****"   # Only show part of the secret
+          echo "Tenant ID: ${AZURE_TENANT_ID:0:4}****"
+
+
+      - name: Azure Login (OIDC)
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
