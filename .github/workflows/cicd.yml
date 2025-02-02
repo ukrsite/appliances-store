@@ -103,6 +103,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Verify Helm Files Exist
+        run: |
+          if [ ! -f "helm/values.yaml" ]; then 
+            echo "Error: helm/values.yaml not found!"; 
+            exit 1; 
+          fi
+          if [ ! -f "helm/Chart.yaml" ]; then 
+            echo "Error: helm/Chart.yaml not found!"; 
+            exit 1; 
+          fi
+
       - name: Update Helm Values.yaml
         uses: mikefarah/yq@master
         with:
