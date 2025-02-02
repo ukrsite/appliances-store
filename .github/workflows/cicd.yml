@@ -5,32 +5,43 @@ on:
     branches:
       - main
 
+env:
+  REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
+  IMAGE_NAME: appliances-store
+
 jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
       - name: Log in to Azure Container Registry
+        if: env.REGISTRY
         uses: azure/docker-login@v1
         with:
-          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          login-server: ${{ env.REGISTRY }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build & Push Docker image
-        env:
-          APP: "appliances-store"
-          REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
-        run: make image push
-      - name: Clean
-        run: make clean
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   cd:
     name: CD
@@ -38,11 +49,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - run: echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Get Version
+        id: version
+        run: |
+          echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Update Image Tag
         uses: mikefarah/yq@master
@@ -54,8 +69,10 @@ jobs:
         with:
           cmd: yq -i '.version=strenv(VERSION)' helm/Chart.yaml
 
-      - run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git commit -am "update version $VERSION"
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add helm/values.yaml helm/Chart.yaml
+          git commit -m "CI: Update to version $VERSION"
           git push
