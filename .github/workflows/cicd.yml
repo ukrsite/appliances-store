@@ -1,3 +1,18 @@
+name: STORE-CICD
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: devregistry20250126.azurecr.io  # Replace with your ACR registry name
+  IMAGE_NAME: appliances-store
+
+permissions:
+  id-token: write   # Required for OIDC authentication
+  contents: read
+
 jobs:
   ci:
     name: CI
@@ -10,6 +25,14 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for versioning
 
+      - name: Check if secrets are set
+        run: |
+          echo "Checking if secrets are set"
+          if [ -z "${{ secrets.AZURE_CLIENT_ID }}" ]; then echo "AZURE_CLIENT_ID is not set"; exit 1; fi
+          if [ -z "${{ secrets.AZURE_TENANT_ID }}" ]; then echo "AZURE_TENANT_ID is not set"; exit 1; fi
+          if [ -z "${{ secrets.AZURE_SUBSCRIPTION_ID }}" ]; then echo "AZURE_SUBSCRIPTION_ID is not set"; exit 1; fi
+          echo "All secrets are set"
+
       - name: Azure Login (OIDC)
         uses: azure/login@v1
         with:
@@ -18,13 +41,11 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Login to Azure Container Registry (ACR)
-        run: |
-          # Get ACR credentials using Azure CLI
-          ACR_USERNAME=$(az acr credential show --name ${{ env.REGISTRY }} --query "username" --output tsv)
-          ACR_PASSWORD=$(az acr credential show --name ${{ env.REGISTRY }} --query "passwords[0].value" --output tsv)
-
-          # Log in to ACR using Docker
-          echo $ACR_PASSWORD | docker login ${{ env.REGISTRY }} --username $ACR_USERNAME --password-stdin
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.REGISTRY }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -35,6 +56,10 @@ jobs:
         with:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ github.sha }}
+            type=raw,value=${{ github.ref_name }}-${{ github.sha }}
 
       - name: Build & Push Docker Image
         uses: docker/build-push-action@v5
@@ -48,9 +73,15 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Verify Docker Image Push
+        run: |
+          echo "Verifying image push to ACR"
+          az acr repository show-tags --name ${{ env.REGISTRY }} --repository ${{ env.IMAGE_NAME }} --output table
+
       - name: Logout from Azure Container Registry (ACR)
         run: |
           docker logout ${{ env.REGISTRY }}
+
   cd:
     name: CD
     needs: ci
