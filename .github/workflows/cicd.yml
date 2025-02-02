@@ -106,6 +106,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get Version from Git
+        id: version
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION="${TAG}-${SHORT_SHA}"
+
       - name: Update Helm Values.yaml
         run: yq eval -i '.image.tag=env(VERSION)' helm/values.yaml
 
