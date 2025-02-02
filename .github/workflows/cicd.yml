@@ -103,15 +103,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify values.yaml file exists
-        run: |
-          if [ -f "src/main/resources/helm/values.yaml" ]; then
-            echo "File exists."
-          else
-            echo "File does not exist."
-            exit 1
-          fi
-
       - name: Debug File Structure
         run: ls -R
 
