@@ -1,0 +1,5 @@
+apiVersion: v2
+name: appliances-store
+description: Helm chart for Appliances Store application
+version: 0.1.0
+appVersion: "v1-73219ab"

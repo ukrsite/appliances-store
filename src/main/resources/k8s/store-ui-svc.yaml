@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: rolling-update-app-service
+  name: appliances-store
 spec:
   selector:
-    app: rolling-update-app
+    app: appliances-store
   ports:
     - protocol: TCP
-      port: 8080
+      port: 80
       targetPort: 8080
   type: LoadBalancer

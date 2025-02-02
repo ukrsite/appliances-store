@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rolling-update-app
+  name: appliances-store
 spec:
-  replicas: 2  # Minimum replicas for rolling update
+  replicas: 2
   selector:
     matchLabels:
-      app: rolling-update-app
+      app: appliances-store
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 1  # Allow only 1 pod to be unavailable during update
-      maxSurge: 1        # Add 1 extra pod during the update
+      maxUnavailable: 1
+      maxSurge: 1
   template:
     metadata:
       labels:
-        app: rolling-update-app
+        app: appliances-store
     spec:
       containers:
-        - name: rolling-update-app
-          image: devregistry20250126.azurecr.io/appliancestoretestspringbootmain_app:v1  # Initial version
+        - name: appliances-store
+          image: devregistry20250126.azurecr.io/appliances-store:v1-73219ab
           ports:
             - containerPort: 8080
           resources:
