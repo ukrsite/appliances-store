@@ -26,9 +26,8 @@ jobs:
 
       - name: Azure Login (OIDC)
         run: |
-          echo ${{ secrets.AZURE_CLIENT_ID }}
-          echo ${{ secrets.AZURE_TENANT_ID }}
-          echo ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ID=echo ${{ secrets.AZURE_CLIENT_ID }}
+          echo $ID
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
