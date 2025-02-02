@@ -114,19 +114,19 @@ jobs:
       - name: Update Helm Values.yaml
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval -i '.image.tag=env(VERSION)' src/main/resources/helm/values.yaml
+          cmd: yq eval -i '.image.tag=env(VERSION)' ./src/main/resources/helm/values.yaml
 
       - name: Update Helm Chart Version
         uses: mikefarah/yq@master
         with:
-          cmd: yq -i '.version=strenv(VERSION)' src/main/resources/helm/Chart.yaml
+          cmd: yq -i '.version=strenv(VERSION)' ./src/main/resources/helm/Chart.yaml
 
       - name: Validate Helm Chart Updates
         run: |
           echo "Updated values.yaml:"
-          cat src/main/resources/helm/values.yaml
+          cat ./src/main/resources/helm/values.yaml
           echo "Updated Chart.yaml:"
-          cat src/main/resources/helm/Chart.yaml
+          cat ./src/main/resources/helm/Chart.yaml
 
       - name: Commit and Push Changes
         run: |
