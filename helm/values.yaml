@@ -1,6 +1,6 @@
 image:
   repository: devregistry20250126.azurecr.io/appliances-store
-  tag: -2590165
+  tag: v1.0.0-fd3d8e1
   pullPolicy: IfNotPresent
 replicaCount: 2
 resources:
