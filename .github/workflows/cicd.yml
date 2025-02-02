@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  REGISTRY: appliancesstore.azurecr.io  # Replace with your ACR registry name
+  REGISTRY: devregistry20250126.azurecr.io  # Replace with your ACR registry name
   IMAGE_NAME: appliances-store
 
 permissions:
