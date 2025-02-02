@@ -102,26 +102,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Debug File Paths
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Repository structure:"
-          ls -R
-          echo "Searching for values.yaml:"
-          find . -name "values.yaml"
-
-      - name: Verify Helm Files Exist
-        run: |
-          if [ ! -f "./helm/values.yaml" ]; then 
-            echo "Error: ./helm/values.yaml not found!"; 
-            exit 1; 
-          fi
-          if [ ! -f "./helm/Chart.yaml" ]; then 
-            echo "Error: ./helm/Chart.yaml not found!"; 
-            exit 1; 
-          fi
+      - run: echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Update Helm Values.yaml
         run: yq eval -i '.image.tag=env(VERSION)' ./helm/values.yaml
