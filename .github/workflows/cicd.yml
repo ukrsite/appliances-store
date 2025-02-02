@@ -43,8 +43,8 @@ jobs:
       - name: Login to Azure Container Registry (ACR)
         uses: docker/login-action@v2
         with:
-          login-server: ${{ env.REGISTRY }}
-          username: ${{ secrets.AZURE_CLIENT_ID }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Set Up Docker Buildx
