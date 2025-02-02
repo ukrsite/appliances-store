@@ -11,7 +11,7 @@ env:
 
 permissions:
   id-token: write   # Required for OIDC authentication
-  contents: read
+  contents: write
 
 jobs:
   ci:
@@ -97,30 +97,27 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # Ensure the workflow can push changes
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - run: echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Update Helm Values.yaml
-        run: yq eval -i '.image.tag=env(VERSION)' ./helm/values.yaml
+        run: yq eval -i '.image.tag=env(VERSION)' helm/values.yaml
 
       - name: Update Helm Chart Version
-        run: yq eval -i '.version=strenv(VERSION)' ./helm/Chart.yaml
-
-      - name: Validate Helm Chart Updates
-        run: |
-          echo "Updated values.yaml:"
-          cat helm/values.yaml
-          echo "Updated Chart.yaml:"
-          cat helm/Chart.yaml
+        run: yq eval -i '.version=strenv(VERSION)' helm/Chart.yaml
 
       - name: Commit and Push Changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@github.com"
           git add helm/values.yaml helm/Chart.yaml
           git diff-index --quiet HEAD || git commit -m "CI: Update to version $VERSION"
-          git push
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
