@@ -25,29 +25,12 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for versioning
 
-      - name: Check if secrets are set
-        run: |
-          echo "Checking if secrets are set"
-          echo "AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}"
-
-      - name: Echo obfuscated secrets
-        run: |
-          echo "Client ID: ${AZURE_CLIENT_ID:0:4}****"   # Only show part of the secret
-          echo "Tenant ID: ${AZURE_TENANT_ID:0:4}****"
-
-
-      - name: Azure Login (OIDC)
-        uses: azure/login@v1
+      - name: Login to Azure Container Registry (ACR)
+        uses: azure/docker-login@v1
         with:
+          login-server: ${{ env.REGISTRY }}
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Authenticate to Azure Container Registry (ACR)
-        run: |
-          TOKEN=$(az account get-access-token --resource https://management.azure.com --query accessToken --output tsv)
-          echo $TOKEN | docker login ${{ env.REGISTRY }} -u 00000000-0000-0000-0000-000000000000 --password-stdin
-
 
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v3
