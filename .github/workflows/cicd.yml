@@ -105,7 +105,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - run: echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Get Version from Git
+        id: version
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION="${TAG}-${SHORT_SHA}"
+
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Computed VERSION: $VERSION"
 
       - name: Update Helm Values.yaml
         run: yq eval -i '.image.tag=env(VERSION)' helm/values.yaml
@@ -119,6 +128,15 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@github.com"
+          
+          git fetch origin main  # Fetch latest changes from remote
+          git reset --soft origin/main  # Ensure our local changes are on top
+          
           git add helm/values.yaml helm/Chart.yaml
           git diff-index --quiet HEAD || git commit -m "CI: Update to version $VERSION"
+          
+          # Pull latest changes before pushing
+          git pull --rebase origin main
+          
+          # Push after rebasing
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
