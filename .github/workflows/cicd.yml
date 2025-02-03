@@ -25,14 +25,6 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for versioning
 
-      - name: Check if secrets are set
-        run: |
-          echo "Checking if secrets are set"
-          if [ -z "${{ secrets.AZURE_CLIENT_ID }}" ]; then echo "AZURE_CLIENT_ID is not set"; exit 1; fi
-          if [ -z "${{ secrets.AZURE_TENANT_ID }}" ]; then echo "AZURE_TENANT_ID is not set"; exit 1; fi
-          if [ -z "${{ secrets.AZURE_SUBSCRIPTION_ID }}" ]; then echo "AZURE_SUBSCRIPTION_ID is not set"; exit 1; fi
-          echo "All secrets are set"
-
       - name: Azure Login (OIDC)
         uses: azure/login@v1
         with:
@@ -120,7 +112,9 @@ jobs:
         run: yq eval -i '.image.tag=env(VERSION)' helm/values.yaml
 
       - name: Update Helm Chart Version
-        run: yq eval -i '.version=strenv(VERSION)' helm/Chart.yaml
+        run: |
+          yq eval -i '.version=strenv(VERSION)' helm/Chart.yaml
+          yq eval -i '.appVersion=strenv(VERSION)' helm/Chart.yaml
 
       - name: Commit and Push Changes
         env:
