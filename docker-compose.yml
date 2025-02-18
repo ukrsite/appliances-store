@@ -2,7 +2,7 @@ version: "3.2"
 
 services:
   app:
-    image: devregistry20250126.azurecr.io/appliancestoretestspringbootmain_app:v1
+    image: devregistry20250126.azurecr.io/appliancestoretestspringbootmain:v1
     build: .
     container_name: spring-boot-app
     ports:
